@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<div class="jumbotron">
+    <div class="overlay" style="display: none;">
+        <i class="fa fa-refresh fa-spin"></i>
+    </div>
+    <div id="divError" class="alert alert-danger" style="display: none;">
+        <h4><i class="icon fa fa-ban"></i> Erro</h4>
+        <span id="msgError"></span>
+    </div>
+
+    <div id="divSuccess" class="alert alert-success" style="display: none;">
+        <h4><i class="icon fa fa-ban"></i> Resultado</h4>
+        <span id="msgSuccess"></span>
+    </div>
+
+    <div class="form-group has-feedback" style="min-height: 50px !important;">
+        <input id="dataNascimento" type="date" maxlength="8" class="form-control" placeholder="Data de Nascimento">
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-offset-8 col-xs-4">
+            <button id="calcular" type="button" class="btn btn-primary btn-block btn-flat">Calcular</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#calcular').click(function () {
+            $('.overlay').show();
+            $('#divError, #msgError').hide();
+            $('#divSuccess, #msgSuccess').hide();
+            $.ajax({
+                type: 'POST',
+                data: {
+                    'data': $('#dataNascimento').val(),
+                },
+                url: '@Url.Action("CalcularIdade")',
+                success: function (result) {
+                    $('.overlay').hide();
+                    if (result.is_action) {
+
+                        $('#divError, #msgError').hide();
+                        $('#msgSuccess').html(result.success);
+                        $('#divSuccess, #msgSuccess').show();
+                    } else {
+                        $('#divSuccess, #msgSuccess').hide();
+                        $('#msgError').html(result.error);
+                        $('#divError, #msgError').show();
+                    }
+                },
+                error: function (error) {
+                    $('.overlay').hide();
+                    $('#divSuccess, #msgSuccess').hide();
+                    $('#msgError').html(error);
+                    $('#divError, #msgError').show();
+                },
+                datatype: 'json'
+            });
+        });
+    });
+
+    function keypressHandler(e) {
+        if (e.which == 13) {
+            $(this).blur();
+            $('#calcular').focus().click();
+        }
+    }
+</script>
